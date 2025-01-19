@@ -38,5 +38,16 @@ public class StompFrame {
     public void setBody(String body) {
         this.body = body;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(command).append("\n");
+        headers.forEach((key, value) -> sb.append(key).append(":").append(value).append("\n"));
+        sb.append("\n").append(body);
+        sb.append("\n").append("\u0000");
+
+        return sb.toString();
+    }
 }
 
