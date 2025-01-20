@@ -1,14 +1,16 @@
 package bgu.spl.net.api;
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ConnectionsImpl;
+import bgu.spl.net.srv.StompFrame;
 
-public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<T> {
+
+public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<StompFrame> {
     private boolean shouldTerminate = false;
-    private ConnectionsImpl<T> connections;
+    private ConnectionsImpl<StompFrame> connections;
     private int connectionId;
 
     @Override
-    public void start(int connectionId, Connections<T> connections) {
+    public void start(int connectionId, Connections<StompFrame> connections) {
         this.connections = (ConnectionsImpl<StompFrame>) connections;
         this.connectionId = connectionId;
     }
