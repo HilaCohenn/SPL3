@@ -8,13 +8,14 @@ public class User {
     private Map<String, Integer> channels; // Channel name to subscription ID
     private String userName;
     private String password;
-    private int connectionId; // Unique connection ID for the user
+    final private int connectionId; // Unique connection ID for the user
 
-    public User(String userName, String password) {
+    public User(String userName, String password, int connectionId) {
         this.userName = userName;
         this.password = password;
         this.isConnected = false;
         this.channels = new HashMap<>();
+        this.connectionId = connectionId;
     }
 
     public boolean isConnected() {
@@ -55,10 +56,6 @@ public class User {
 
     public int getConnectionId() {
         return connectionId;
-    }
-
-    public void setConnectionId(int connectionId) {
-        this.connectionId = connectionId;
     }
 
     public void subscribe(String channel, int subscriptionId) {
