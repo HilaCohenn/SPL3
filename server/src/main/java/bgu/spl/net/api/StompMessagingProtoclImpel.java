@@ -1,4 +1,6 @@
 package bgu.spl.net.api;
+import java.util.concurrent.ConcurrentHashMap;
+
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ConnectionsImpl;
 import bgu.spl.net.srv.StompFrame;
@@ -24,7 +26,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
                 handleConnect(frame);
                 break;
             case "DISCONNECT":
-                handleDisconnect();
+                handleDisconnect(frame);
                 break;
             case "SEND":
                 handleSend(frame);
@@ -65,7 +67,15 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleSubscribe(StompFrame frame) {
-        // Handle subscribe logic
+        String channel = frame.getHeaders().get("destination");
+        int id = Integer.parseInt(frame.getHeaders().get("id"));
+        String recipt = frame.getHeaders().get("receipt");
+        connections.addSubscriber(channel, connectionId);
+        connections.addSubscriberId(channel, connectionId, id);
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        headers.put("receipt-id", recipt);
+        StompFrame receipt = new StompFrame("RECEIPT", headers, "");
+        connections.send(connectionId, receipt);
     }
 
     @Override

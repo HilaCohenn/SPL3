@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class ConnectionsImpl<T> implements Connections<T> {
     private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;
     private ConcurrentHashMap<String,List<Integer>> subscribers;
+    private ConcurrentHashMap<Integer, ConcurrentHashMap<String, Integer>> subscribersId; // hash map - connectionId, hash map - channel, subscriptionId
 
     public ConnectionsImpl() {
         connections = new ConcurrentHashMap<>();
@@ -50,5 +51,14 @@ public class ConnectionsImpl<T> implements Connections<T> {
             subscribers.put(channel, list);
         }
         subscribers.get(channel).add(connectionId);
+    }
+
+    public void addSubscriberId(String channel, int connectionId, int subscriptionId){
+        if(subscribersId.get(connectionId)==null){
+            ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+            map.put(channel, subscriptionId);
+            subscribersId.put(connectionId, map);
+        }
+        subscribersId.get(connectionId).put(channel, subscriptionId);
     }
 }
