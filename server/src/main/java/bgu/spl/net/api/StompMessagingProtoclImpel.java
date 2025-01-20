@@ -21,16 +21,16 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
 
         switch (command.toUpperCase()) {
             case "CONNECT":
-                handleConnect(parts[1]);
+                handleConnect(frame);
                 break;
             case "DISCONNECT":
                 handleDisconnect();
                 break;
             case "SEND":
-                handleSend(parts[1]);
+                handleSend(frame);
                 break;
             case "SUBSCRIBE":
-                handleSubscribe(parts[1]);
+                handleSubscribe(frame);
                 break;
             default:
                 System.out.println("Unknown command: " + command);
@@ -39,16 +39,16 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
     }
 
-    private void handleConnect(String details) {
+    private void handleConnect(StompFrame frame) {
         // Handle connect logic
     }
 
-    private void handleDisconnect() {
+    private void handleDisconnect(StompFrame frame) {
         shouldTerminate = true;
         // Handle disconnect logic
     }
 
-    private void handleSend(String details) {
+    private void handleSend(StompFrame frame) {
         String destination = frame.getHeaders().get("destination");
         if (destination == null) {
             //  send the client an ERROR frame and then close the connection
@@ -64,7 +64,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         // Handle send logic
     }
 
-    private void handleSubscribe(String details) {
+    private void handleSubscribe(StompFrame frame) {
         // Handle subscribe logic
     }
 
