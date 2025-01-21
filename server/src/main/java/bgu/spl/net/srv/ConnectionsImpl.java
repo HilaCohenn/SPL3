@@ -61,4 +61,27 @@ public class ConnectionsImpl<T> implements Connections<T> {
         }
         subscribersId.get(connectionId).put(channel, subscriptionId);
     }
+
+    public  void removeSubscriber(String channel, int connectionId){
+        subscribers.get(channel).remove(connectionId);
+        subscribersId.get(connectionId).remove(channel);
+    }
+
+    public String getChannel (int connectionId, int subscriptionId){
+        for (String channel : subscribersId.get(connectionId).keySet()){
+            if(subscribersId.get(connectionId).get(channel)==subscriptionId){
+                return channel;
+            }
+        }
+        return null;
+    }
+
+    public boolean isSubscribed (int connectionId, String channel){
+        return subscribers.get(channel).contains(connectionId);
+    }
+
+    public String getSubscriptionId(int connectionId, String channel){
+        return subscribersId.get(connectionId).get(channel).toString();
+    }
+
 }

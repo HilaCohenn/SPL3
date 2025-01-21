@@ -10,6 +10,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private boolean shouldTerminate = false;
     private ConnectionsImpl<StompFrame> connections;
     private int connectionId;
+    private int messageCounter = 1;
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {
@@ -34,6 +35,9 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             case "SUBSCRIBE":
                 handleSubscribe(frame);
                 break;
+            case "UNSUBSCRIBE":
+                handleUnsubscribe(frame);
+                break;
             default:
                 System.out.println("Unknown command: " + command);
                 // send an ERROR
@@ -51,27 +55,62 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleSend(StompFrame frame) {
-        String destination = frame.getHeaders().get("destination");
-        if (destination == null) {
+        String channel = frame.getHeaders().get("destination");
+        if (channel == null) {
             //  send the client an ERROR frame and then close the connection
             System.out.println("SEND command missing destination header");
             return;
         }
-        boolean isSent = connections.send(destination, frame);
-        if (isSent){
-            // send the client a RECEIPT frame
-        } else {
-            // send the client an ERROR frame
+        String message = frame.getBody();
+        if(connections.isSubscribed(connectionId, channel))
+        {
+            String subId= connections.getSubscriptionId(connectionId, channel);
+            String id = Integer.toString(messageCounter);
+            this.messageCounter++;
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            headers.put("subscription", id);
+            headers.put("Message-id", id);
+            headers.put("destination", channel);
+            connections.send(channel, new StompFrame("MESSAGE", headers, message));
+            //make sure SEND has recipt header
+            String recipt = frame.getHeaders().get("receipt");
+            ConcurrentHashMap<String, String> header = new ConcurrentHashMap<>();
+            header.put("receipt-id", recipt);
+            StompFrame receipt = new StompFrame("RECEIPT", header, "");
+            connections.send(connectionId, receipt);
         }
-        // Handle send logic
+        else{
+            // send the client an ERROR frame
+            System.out.println("SEND command failed: not subscribed to channel");
+        }
+     
+       
     }
 
     private void handleSubscribe(StompFrame frame) {
         String channel = frame.getHeaders().get("destination");
         int id = Integer.parseInt(frame.getHeaders().get("id"));
         String recipt = frame.getHeaders().get("receipt");
+        //if header missing - send error frame
         connections.addSubscriber(channel, connectionId);
         connections.addSubscriberId(channel, connectionId, id);
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        headers.put("receipt-id", recipt);
+        StompFrame receipt = new StompFrame("RECEIPT", headers, "");
+        connections.send(connectionId, receipt);
+        //send error frsme if needed - when and why?
+    }
+
+    private void handleUnsubscribe(StompFrame frame) {
+        int id = Integer.parseInt(frame.getHeaders().get("id"));
+        String recipt = frame.getHeaders().get("receipt");
+        String channel = connections.getChannel(this.connectionId, id);
+        if (channel==null){
+            // send the client an ERROR frame?
+            System.out.println("Unsubscribe failed: not subscribed to channel");
+            return;
+        }
+        connections.removeSubscriber(channel, connectionId);
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         headers.put("receipt-id", recipt);
         StompFrame receipt = new StompFrame("RECEIPT", headers, "");
