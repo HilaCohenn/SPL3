@@ -48,8 +48,10 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
                 handleUnsubscribe(frame);
                 break;
             default:
-                System.out.println("Unknown command: " + command);
-                // send an ERROR
+                ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+                map.put("message: ", "Unknown command: " + command);
+                StompFrame error = new StompFrame("ERROR", new ConcurrentHashMap<>(), "");
+                connections.send(connectionId, error);
                 break;
         }
     }
@@ -58,13 +60,35 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String userName = frame.getHeaders().get("login");
         String password = frame.getHeaders().get("passcode");
 
-        if (userName == null || password == null) {
-            // Send error frame
+        if (userName == null )
+        {
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Missing login header");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("doesn't contain the login header, which is required for the CONNECT command.");
+            handleError(map, body.toString(), frame);
+            return;
+        }
+        
+        if (password == null )
+        {
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Missing password header");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("doesn't contain the password header, which is required for the CONNECT command.");
+            handleError(map, body.toString(), frame);
             return;
         }
         if (logedIn) {
-            // Send error frame
-            return;
+
         }
 
         ConcurrentHashMap<String, User> users = server.getUsers();
@@ -73,7 +97,9 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             user = new User(userName, password, connectionId);
             server.addUser(userName, user);
         } else if (!user.getPassword().equals(password)) {
-            // Send error frame
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Wrong password");
+            handleError(map, null, frame);
             return;
         }
 
@@ -101,10 +127,18 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         String channel = frame.getHeaders().get("destination");
         if (channel == null) {
-            //  send the client an ERROR frame and then close the connection
-            System.out.println("SEND command missing destination header");
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Missing destination header");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("failed because SEND command missing destination header, which is required.");
+            handleError(map, body.toString(), frame);
             return;
         }
+
         String message = frame.getBody();
         if(connections.isSubscribed(connectionId, channel))
         {
@@ -116,16 +150,26 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             headers.put("Message-id", id);
             headers.put("destination", channel);
             connections.send(channel, new StompFrame("MESSAGE", headers, message));
-            //make sure SEND has recipt header
             String recipt = frame.getHeaders().get("receipt");
+            if(recipt==null){
+                return;
+            }
             ConcurrentHashMap<String, String> header = new ConcurrentHashMap<>();
             header.put("receipt-id", recipt);
             StompFrame receipt = new StompFrame("RECEIPT", header, "");
             connections.send(connectionId, receipt);
         }
         else{
-            // send the client an ERROR frame
-            System.out.println("SEND command failed: not subscribed to channel");
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Missing destination header");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("failed because SEND command missing destination header, which is required.");
+            handleError(map, body.toString(), frame);
+            return;
         }
      
        
@@ -135,14 +179,24 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String channel = frame.getHeaders().get("destination");
         int id = Integer.parseInt(frame.getHeaders().get("id"));
         String recipt = frame.getHeaders().get("receipt");
-        //if header missing - send error frame
+        if (channel==null){
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Missing destination header");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("failed because Subscribe command missing destination header, which is required.");
+            handleError(map, body.toString(), frame);
+            return;
+        }
         connections.addSubscriber(channel, connectionId);
         connections.addSubscriberId(channel, connectionId, id);
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         headers.put("receipt-id", recipt);
         StompFrame receipt = new StompFrame("RECEIPT", headers, "");
         connections.send(connectionId, receipt);
-        //send error frsme if needed - when and why?
     }
 
     private void handleUnsubscribe(StompFrame frame) {
@@ -150,8 +204,15 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String recipt = frame.getHeaders().get("receipt");
         String channel = connections.getChannel(this.connectionId, id);
         if (channel==null){
-            // send the client an ERROR frame?
-            System.out.println("Unsubscribe failed: not subscribed to channel");
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "not subscribed to channel");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("Unsubscrube failed: not subscribed to channel");
+            handleError(map, body.toString(), frame);
             return;
         }
         connections.removeSubscriber(channel, connectionId);

@@ -44,7 +44,10 @@ public class StompFrame {
         StringBuilder sb = new StringBuilder();
         sb.append(command).append("\n");
         headers.forEach((key, value) -> sb.append(key).append(":").append(value).append("\n"));
+        if (body!=null||!body.isEmpty())
+        {
         sb.append("\n").append(body);
+        }
         sb.append("\n").append("\u0000");
 
         return sb.toString();
