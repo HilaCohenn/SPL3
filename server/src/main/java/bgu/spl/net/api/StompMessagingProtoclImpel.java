@@ -15,9 +15,9 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
-    private Reactor<T> server;
+    private Server<T> server;
 
-    public StompMessagingProtoclImpel(Reactor<T> server) {
+    public StompMessagingProtoclImpel(Server<T> server) {
         this.server = server;
     }
 
