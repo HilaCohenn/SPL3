@@ -58,7 +58,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private void handleSend(StompFrame frame) {
         if(!logedIn){
             // send the client an ERROR frame and then close the connection
-            System.out.println("SEND command failed: not logged in");
+            System.out.println("SEND command failed: not logged in");//in error frames
             return;
         }
         String channel = frame.getHeaders().get("destination");
@@ -74,7 +74,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             String id = Integer.toString(messageCounter);
             this.messageCounter++;
             ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
-            headers.put("subscription", id);
+            headers.put("subscription", subId);
             headers.put("Message-id", id);
             headers.put("destination", channel);
             connections.send(channel, new StompFrame("MESSAGE", headers, message));
