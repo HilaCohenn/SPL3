@@ -24,6 +24,7 @@ public class Reactor<T> implements Server<T> {
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+    private final AtomicInteger connectionIdGenerator = new AtomicInteger(0);
 
     public Reactor(
             int numThreads,
@@ -138,6 +139,10 @@ public class Reactor<T> implements Server<T> {
 
     public void addUser(String userName, User user) {
         users.put(userName, user);
+    }
+    
+    public int generateConnectionId() {
+        return connectionIdGenerator.incrementAndGet();
     }
 
 }
