@@ -11,6 +11,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private ConnectionsImpl<StompFrame> connections;
     private int connectionId;
     private int messageCounter = 1;
+    private boolean isLogedIn = false;
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {

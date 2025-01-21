@@ -84,4 +84,8 @@ public class ConnectionsImpl<T> implements Connections<T> {
         return subscribersId.get(connectionId).get(channel).toString();
     }
 
+    public boolean IsConnected(int connectionId){
+        return connections.containsKey(connectionId);
+    }
+
 }
