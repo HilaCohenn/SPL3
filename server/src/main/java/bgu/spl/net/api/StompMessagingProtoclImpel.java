@@ -11,7 +11,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private ConnectionsImpl<StompFrame> connections;
     private int connectionId;
     private int messageCounter = 1;
-    private boolean isLogedIn = false;
+    private boolean logedIn = false;
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {
@@ -56,6 +56,11 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleSend(StompFrame frame) {
+        if(!logedIn){
+            // send the client an ERROR frame and then close the connection
+            System.out.println("SEND command failed: not logged in");
+            return;
+        }
         String channel = frame.getHeaders().get("destination");
         if (channel == null) {
             //  send the client an ERROR frame and then close the connection
