@@ -38,6 +38,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void disconnect(int connectionId) {
         connections.remove(connectionId);
+        // delete/clear the connection handler
     }
 
     public void addConnection(int connectionId, ConnectionHandler<T> connectionHandler) {

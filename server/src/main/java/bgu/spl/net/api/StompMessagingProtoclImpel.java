@@ -12,6 +12,11 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
+    rivate Reactor<T> server;
+
+    public StompMessagingProtoclImpel(Reactor<T> server) {
+        this.server = server;
+    }
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {
@@ -47,10 +52,40 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleConnect(StompFrame frame) {
-        // Handle connect logic
+        String userName = frame.getHeaders().get("login");
+        String password = frame.getHeaders().get("passcode");
+
+        if (userName == null || password == null) {
+            // Send error frame
+            return;
+        }
+        if (logedIn) {
+            // Send error frame
+            return;
+        }
+
+        ConcurrentHashMap<String, User> users = server.getUsers();
+        User user = users.get(userName);
+        if (user == null) {
+            user = new User(userName, password, connectionId);
+            server.addUser(userName, user);
+        } else if (!user.getPassword().equals(password)) {
+            // Send error frame
+            return;
+        }
+
+        user.setConnected(true);
+        connections.addConnection(connectionId, new BlockingConnectionHandler<>(/* parameters */));
+        // Send connected frame
+
     }
 
     private void handleDisconnect(StompFrame frame) {
+        User user = getUserByConnectionId(connectionId);
+        if (user != null) {
+            user.setConnected(false);
+        }
+        connections.disconnect(connectionId);
         shouldTerminate = true;
         // Handle disconnect logic
     }
