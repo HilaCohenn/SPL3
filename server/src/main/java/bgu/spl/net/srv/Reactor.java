@@ -140,7 +140,7 @@ public class Reactor<T> implements Server<T> {
     public void addUser(String userName, User user) {
         users.put(userName, user);
     }
-    
+
     public int generateConnectionId() {
         return connectionIdGenerator.incrementAndGet();
     }

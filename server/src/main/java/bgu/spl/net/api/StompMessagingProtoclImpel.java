@@ -11,9 +11,11 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int messageCounter = 1;
     private boolean logedIn = false;
     private Server<T> server;
+    private NonBlockingConnectionHandler<T> connectionHandler;
 
-    public StompMessagingProtoclImpel(Server<T> server) {
+    public StompMessagingProtoclImpel(Server<T> server, NonBlockingConnectionHandler<T> connectionHandler) {
         this.server = server;
+        this.connectionHandler = connectionHandler;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
 
         user.setConnected(true);
-        connections.addConnection(connectionId, new BlockingConnectionHandler<>(/* parameters */));
+        connections.addConnection(connectionId, connectionHandler);
         ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
         map.put("version: ", "1.2");
         connections.send(connectionId, new StompFrame("CONNECTED", map, ""));
