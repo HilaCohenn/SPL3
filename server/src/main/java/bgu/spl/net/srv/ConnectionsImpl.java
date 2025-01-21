@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.ArrayList;
 
 
@@ -43,9 +44,10 @@ public class ConnectionsImpl<T> implements Connections<T> {
         if (handler != null) {
             try {
                 handler.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
+          
         }
         // unsubscribe from all channels
         ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
@@ -68,7 +70,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     
     public void addSubscriber(String channel, int connectionId){
         if(subscribers.get(channel)==null){
-            List<Integer> list = new ArrayList<>();
+            List<Integer> list = new CopyOnWriteArrayList<>();
             list.add(connectionId);
             subscribers.put(channel, list);
         }

@@ -101,7 +101,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
 
         user.setConnected(true);
-        connections.addConnection(connectionId, new BlockingConnectionHandler<>(/* parameters */));
+        connections.addConnection(connectionId, new NonBlockingConnectionHandler<>(/* parameters */));
         ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
         map.put("version: ", "1.2");
         connections.send(connectionId, new StompFrame("CONNECTED", map, ""));
@@ -121,7 +121,6 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         connections.disconnect(connectionId);
         shouldTerminate = true;
-        // Handle disconnect logic
     }
 
     private void handleSend(StompFrame frame) {
