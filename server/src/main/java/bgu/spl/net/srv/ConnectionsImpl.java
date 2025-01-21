@@ -37,8 +37,29 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void disconnect(int connectionId) {
-        connections.remove(connectionId);
+        
         // delete/clear the connection handler
+        ConnectionHandler<T> handler = connections.remove(connectionId);
+        if (handler != null) {
+            try {
+                handler.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // unsubscribe from all channels
+        ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
+        if (userSubscriptions != null) {
+            for (String channel : userSubscriptions.keySet()) {
+                List<Integer> channelSubscribers = subscribers.get(channel);
+                if (channelSubscribers != null) {
+                    channelSubscribers.remove(connectionId);
+                    if (channelSubscribers.isEmpty()) {
+                        subscribers.remove(channel);
+                    }
+                }
+            }
+        }
     }
 
     public void addConnection(int connectionId, ConnectionHandler<T> connectionHandler) {
