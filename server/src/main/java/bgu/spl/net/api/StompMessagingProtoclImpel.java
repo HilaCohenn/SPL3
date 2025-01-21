@@ -158,6 +158,15 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         connections.send(connectionId, receipt);
     }
 
+    private User getUserByConnectionId(int connectionId) {
+        for (User user : server.getUsers().values()) {
+            if (user.getConnectionId() == connectionId) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean shouldTerminate() {
         return shouldTerminate;
