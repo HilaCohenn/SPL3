@@ -3,6 +3,7 @@ package bgu.spl.net.srv;
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import java.io.Closeable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public interface Server<T> extends Closeable {
@@ -50,5 +51,8 @@ public interface Server<T> extends Closeable {
             Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
         return new Reactor<T>(nthreads, port, protocolFactory, encoderDecoderFactory);
     }
+
+    abstract public void addUser(String userName, User user);
+    abstract public ConcurrentHashMap<String, User> getUsers();
 
 }

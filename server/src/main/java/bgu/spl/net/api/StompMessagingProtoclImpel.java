@@ -2,12 +2,7 @@ package bgu.spl.net.api;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import bgu.spl.net.srv.Connections;
-import bgu.spl.net.srv.ConnectionsImpl;
-import bgu.spl.net.srv.StompFrame;
-import bgu.spl.net.srv.User;
-import bgu.spl.net.srv.Reactor;
-import bgu.spl.net.srv.BlockingConnectionHandler;
+import bgu.spl.net.srv.*;
 
 public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<StompFrame> {
     private boolean shouldTerminate = false;
@@ -88,7 +83,9 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             return;
         }
         if (logedIn) {
-
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "User already logged in");
+            handleError(map, "", frame);
         }
 
         ConcurrentHashMap<String, User> users = server.getUsers();
@@ -105,11 +102,19 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
 
         user.setConnected(true);
         connections.addConnection(connectionId, new BlockingConnectionHandler<>(/* parameters */));
-        // Send connected frame
+        ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+        map.put("version: ", "1.2");
+        connections.send(connectionId, new StompFrame("CONNECTED", map, ""));
 
     }
 
     private void handleDisconnect(StompFrame frame) {
+        if(!logedIn){
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "User not logged in, please login first");
+            handleError(map, "", frame);
+            return;
+        }
         User user = getUserByConnectionId(connectionId);
         if (user != null) {
             user.setConnected(false);
@@ -121,10 +126,12 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
 
     private void handleSend(StompFrame frame) {
         if(!logedIn){
-            // send the client an ERROR frame and then close the connection
-            System.out.println("SEND command failed: not logged in");//in error frames
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "User not logged in, please login first");
+            handleError(map, "", frame);
             return;
         }
+
         String channel = frame.getHeaders().get("destination");
         if (channel == null) {
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
@@ -176,6 +183,12 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleSubscribe(StompFrame frame) {
+        if(!logedIn){
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "User not logged in, please login first");
+            handleError(map, "", frame);
+            return;
+        }
         String channel = frame.getHeaders().get("destination");
         int id = Integer.parseInt(frame.getHeaders().get("id"));
         String recipt = frame.getHeaders().get("receipt");
@@ -200,6 +213,12 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private void handleUnsubscribe(StompFrame frame) {
+        if(!logedIn){
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "User not logged in, please login first");
+            handleError(map, "", frame);
+            return;
+        }
         int id = Integer.parseInt(frame.getHeaders().get("id"));
         String recipt = frame.getHeaders().get("receipt");
         String channel = connections.getChannel(this.connectionId, id);
