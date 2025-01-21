@@ -1,10 +1,13 @@
 package bgu.spl.net.api;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ConnectionsImpl;
 import bgu.spl.net.srv.StompFrame;
-
+import bgu.spl.net.srv.User;
+import bgu.spl.net.srv.Reactor;
+import bgu.spl.net.srv.BlockingConnectionHandler;
 
 public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<StompFrame> {
     private boolean shouldTerminate = false;
@@ -12,7 +15,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
-    rivate Reactor<T> server;
+    private Reactor<T> server;
 
     public StompMessagingProtoclImpel(Reactor<T> server) {
         this.server = server;
@@ -171,5 +174,11 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     public boolean shouldTerminate() {
         return shouldTerminate;
     }
-    
+
+    private void handleError(Map<String, String> headers, String body,StompFrame frame)
+    {
+        StompFrame error = new StompFrame("ERROR", headers, body);
+        connections.send(connectionId, error);
+        handleDisconnect(frame);
+    }
 }
