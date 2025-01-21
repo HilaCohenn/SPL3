@@ -22,6 +22,7 @@ public class Reactor<T> implements Server<T> {
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
+    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
     public Reactor(
             int numThreads,
@@ -128,6 +129,14 @@ public class Reactor<T> implements Server<T> {
     @Override
     public void close() throws IOException {
         selector.close();
+    }
+
+    public ConcurrentHashMap<String, User> getUsers() {
+        return users;
+    }
+
+    public void addUser(String userName, User user) {
+        users.put(userName, user);
     }
 
 }
