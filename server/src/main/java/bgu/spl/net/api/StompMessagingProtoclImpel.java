@@ -66,7 +66,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String password = frame.getHeaders().get("passcode");
 
         if (userName == null )
-        {
+        {//error
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Missing login header");
             StringBuilder body = new StringBuilder();
@@ -80,7 +80,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         
         if (password == null )
-        {
+        {//error
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Missing password header");
             StringBuilder body = new StringBuilder();
