@@ -10,12 +10,20 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
-    private Server<T> server;
-    private ConnectionHandler<StompFrame> connectionHandler;
+    private Server<?> server;
+   
 
-    public StompMessagingProtoclImpel(Server<T> server, ConnectionHandler<StompFrame> connectionHandler) {
+    public StompMessagingProtoclImpel() {
+        // Default constructor
+    }
+
+    // public StompMessagingProtoclImpel() {
+        
+
+    // }
+
+    public void setServer(Server<T> server) {
         this.server = server;
-        this.connectionHandler = connectionHandler;
     }
 
     @Override
@@ -103,7 +111,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
 
         user.setConnected(true);
-        connections.addConnection(connectionId, connectionHandler);
+        logedIn = true;
         ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
         map.put("version: ", "1.2");
         connections.send(connectionId, new StompFrame("CONNECTED", map, ""));
@@ -202,6 +210,18 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             body.append(frame.toString());
             body.append("----------------\n");
             body.append("failed because Subscribe command missing destination header, which is required.");
+            handleError(map, body.toString(), frame);
+            return;
+        }
+        if(connections.isSubscribed(connectionId, channel)){
+            ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+            map.put("message: ", "Already subscribed to channel");
+            StringBuilder body = new StringBuilder();
+            body.append("The message:\n");
+            body.append("----------------\n");
+            body.append(frame.toString());
+            body.append("----------------\n");
+            body.append("Subscribe failed: already subscribed to channel");
             handleError(map, body.toString(), frame);
             return;
         }

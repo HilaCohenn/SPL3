@@ -25,6 +25,7 @@ public class Reactor<T> implements Server<T> {
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     private final AtomicInteger connectionIdGenerator = new AtomicInteger(0);
+    private final ConnectionsImpl<T> connections = new ConnectionsImpl<>();
 
     public Reactor(
             int numThreads,
@@ -103,7 +104,10 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
+              
         clientChan.register(selector, SelectionKey.OP_READ, handler);
+        connections.addConnection(this.generateConnectionId(), handler);
+        //protocol start        
     }
 
     private void handleReadWrite(SelectionKey key) {

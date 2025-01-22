@@ -2,12 +2,12 @@ package bgu.spl.net.srv;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.ArrayList;
+
 
 
 public class ConnectionsImpl<T> implements Connections<T> {
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;
-    private ConcurrentHashMap<String,List<Integer>> subscribers;
+    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;//Integer=connectionId
+    private ConcurrentHashMap<String,List<Integer>> subscribers;//Integer=connectionId
     private ConcurrentHashMap<Integer, ConcurrentHashMap<String, Integer>> subscribersId; // hash map - connectionId, hash map - channel, subscriptionId
 
     public ConnectionsImpl() {
@@ -110,6 +110,10 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public boolean IsConnected(int connectionId){
         return connections.containsKey(connectionId);
+    }
+
+    public boolean IsSubscribed(int connectionId, String channel){
+        return subscribers.get(channel).contains(connectionId);
     }
 
 }

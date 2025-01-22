@@ -1,8 +1,12 @@
 package bgu.spl.net.impl.stomp;
 
+import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.api.StompMessagingProtocol;
+import bgu.spl.net.srv.*;
 import bgu.spl.net.api.MessageEncoderDecoderImpel;
 import bgu.spl.net.api.StompMessagingProtoclImpel;
-import bgu.spl.net.srv.Server;
+
+
 
 public class StompServer {
 
@@ -16,7 +20,7 @@ public class StompServer {
         int port = Integer.parseInt(args[0]);
         String serverType = args[1];
 
-        if ("threadPerClient".equalsIgnoreCase(serverType)) {
+        if ("tpc".equalsIgnoreCase(serverType)) {
             Server.threadPerClient(
                     port,
                     StompMessagingProtoclImpel::new, // protocol factory
