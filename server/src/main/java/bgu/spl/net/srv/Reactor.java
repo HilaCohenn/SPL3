@@ -105,9 +105,14 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
-         int connectionId = generateConnectionId();
+        int connectionId = generateConnectionId();
         connections.addConnection(connectionId, handler);
-        handler.getProtocol().start(connectionId, connections);     
+
+        // Create the protocol instance and pass the handler
+        StompMessagingProtoclImpel<StompFrame> protocol = new StompMessagingProtoclImpel<StompFrame>(this);
+        handler.setProtocol(protocol);
+
+        protocol.start(connectionId, connections);     
         clientChan.register(selector, SelectionKey.OP_READ, handler);
              
     }
