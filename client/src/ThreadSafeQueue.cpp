@@ -1,6 +1,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include "../include/ThreadSafeQueue.h"
 
 template <typename T>
 class ThreadSafeQueue {

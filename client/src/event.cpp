@@ -153,3 +153,16 @@ names_and_events parseEventsFile(std::string json_path)
     return events_and_names;
     
 }
+std::string Event::toString() const{
+    std::ostringstream oss;
+    oss << "user:" << eventOwnerUser << "\n";
+    oss << "city:" << city << "\n";
+    oss << "event name:" << name << "\n";
+    oss << "date time:" << date_time << "\n";
+    oss << "general information:\n";
+    for (const auto& pair : general_information) {
+        oss << "\t" << pair.first << ":" << pair.second << "\n";
+    }
+    oss << "description:" << description << "\n";
+    return oss.str();
+}

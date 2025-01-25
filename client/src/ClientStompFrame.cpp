@@ -3,6 +3,20 @@
 ClientStompFrame::ClientStompFrame(const std::string &command, const std::unordered_map<std::string, std::string> &headers, const std::string &body)
     : command(command), headers(headers), body(body) {}
 
+ClientStompFrame::ClientStompFrame(const std::string framestring) {
+    std::istringstream iss(framestring);
+    std::string line;
+    std::getline(iss, line);
+    command = line;
+    while (std::getline(iss, line) && !line.empty()) {
+        size_t pos = line.find(':');
+        std::string key = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+        headers[key] = value;
+    }
+    std::getline(iss, body, '\0');
+}
+
 std::string ClientStompFrame::getCommand() const {
     return command;
 }

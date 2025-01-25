@@ -11,7 +11,7 @@ private:
 
 public:
     ClientStompFrame(const std::string &command, const std::unordered_map<std::string, std::string> &headers, const std::string &body);
-
+    ClientStompFrame(const std::string framestring);
     std::string getCommand() const;
     void setCommand(const std::string &command);
 
