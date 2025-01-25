@@ -10,17 +10,13 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
-    private Server<?> server;
+    private Server<T> server;
    
 
-    public StompMessagingProtoclImpel() {
-        // Default constructor
+    public StompMessagingProtoclImpel(Server<T> server) {
+        this.server = server;
     }
 
-    // public StompMessagingProtoclImpel() {
-        
-
-    // }
 
     public void setServer(Server<T> server) {
         this.server = server;
@@ -65,6 +61,10 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String userName = frame.getHeaders().get("login");
         String password = frame.getHeaders().get("passcode");
 
+        // Debugging statements
+        System.out.println("handleConnect: userName=" + userName + ", password=" + password);
+        System.out.println("handleConnect: server=" + server);
+
         if (userName == null )
         {//error
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
@@ -99,6 +99,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
 
         ConcurrentHashMap<String, User> users = server.getUsers();
+        System.out.println("handleConnect: users=" + users);
         User user = users.get(userName);
         if (user == null) {
             user = new User(userName, password, connectionId);
