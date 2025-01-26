@@ -66,8 +66,10 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     public void close() {
         try {
+            System.err.println("entering close of NonBlockingConnectionHandler");
             chan.close();
         } catch (IOException ex) {
+            System.err.println("Error closing in NonBlockingConnectionHandler");
             ex.printStackTrace();
         }
     }

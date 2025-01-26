@@ -8,13 +8,13 @@ import bgu.spl.net.srv.User;
 
 
 public class ConnectionsImpl<T> implements Connections<T> {
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;//Integer=connectionId
-    private ConcurrentHashMap<String,List<Integer>> subscribers;//Integer=connectionId
+    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections= new ConcurrentHashMap<>();//Integer=connectionId
+    private ConcurrentHashMap<String,List<Integer>> subscribers = new ConcurrentHashMap<>();//Integer=connectionId
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer, ConcurrentHashMap<String, Integer>> subscribersId; // hash map - connectionId, hash map - channel, subscriptionId
+    private ConcurrentHashMap<Integer, ConcurrentHashMap<String, Integer>> subscribersId = new ConcurrentHashMap<>(); // hash map - connectionId, hash map - channel, subscriptionId
 
     public ConnectionsImpl() {
-        connections = new ConcurrentHashMap<>();
+     //
     }
 
     @Override
@@ -42,28 +42,35 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void disconnect(int connectionId) {
+        System.out.println("Disconnecting connectionId: " + connectionId);
+
         // Remove connection handler
         ConnectionHandler<T> handler = connections.remove(connectionId);
+        if (handler == null){
+            System.out.println("Connection handler is null");
+        }
         if (handler != null) {
             try {
                 handler.close();
             } catch (Exception e) {
+                System.err.println("Error closing connection handler for connectionId: " + connectionId);
                 e.printStackTrace();
             }
         }
 
-        // PROBLEM:
-        // Unsubscribe from all channels
-        ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
-        if (userSubscriptions != null) {
-            for (String channel : userSubscriptions.keySet()) {
-                subscribers.computeIfPresent(channel, (ch, channelSubscribers) -> {
-                    channelSubscribers.remove(connectionId);
-                    return channelSubscribers.isEmpty() ? null : channelSubscribers;
-                });
-            }
+    // Unsubscribe from all channels
+    ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
+    System.out.println("User subscriptions: " + userSubscriptions);
+    if (userSubscriptions != null) {
+        for (String channel : userSubscriptions.keySet()) {
+            System.out.println("Unsubscribing from channel: " + channel);
+            subscribers.computeIfPresent(channel, (ch, channelSubscribers) -> {
+                channelSubscribers.removeIf(id -> id.equals(connectionId));
+                return channelSubscribers.isEmpty() ? null : channelSubscribers;
+            });
         }
     }
+}
 
     public void addConnection(int connectionId, ConnectionHandler<T> connectionHandler) { 
         connections.put(connectionId, connectionHandler);
@@ -108,18 +115,13 @@ public String getChannel(int connectionId, int subscriptionId) {
     return null;
 }
 
-    // public boolean isSubscribed (int connectionId, String channel){
+    public boolean isSubscribed (int connectionId, String channel){
         
-    //     if (subscribers.get(channel) == null){
-    //         return false;
-    //     }
-    //     boolean isSubscribed = subscribers.get(channel).contains(connectionId);
-    //     return isSubscribed;
-    // }
-
-    public boolean isSubscribed(int connectionId, String channel) {
-        List<Integer> channelSubscribers = subscribers.get(channel);
-        return channelSubscribers != null && channelSubscribers.contains(connectionId);
+        if (subscribers.get(channel) == null){
+            return false;
+        }
+        boolean isSubscribed = subscribers.get(channel).contains(connectionId);
+        return isSubscribed;
     }
 
     public String getSubscriptionId(int connectionId, String channel){
