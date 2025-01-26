@@ -1,10 +1,10 @@
-#pragma once
+
 #include "../include/Keyboard.h"
 using namespace std;
 
-    Keyboard::Keyboard(): subIdGenerator(0), receiptIdGenerator(0){}
+    Keyboard::Keyboard():   subIdGenerator(0), receiptIdGenerator(0),isConnected(false),user(nullptr){}
 
-    void split_str(const string &s, char delimiter, vector<string> &tokens) {
+    void split_string(const string &s, char delimiter, vector<string> &tokens) {
     string token;
     stringstream tokenStream(s);
     while (getline(tokenStream, token, delimiter)) {
@@ -18,7 +18,7 @@ using namespace std;
             std::string input;
             std::getline(std::cin, input);
             std::vector<std::string> inputArgs;
-            split_str(input, ' ', inputArgs);
+            split_string(input, ' ', inputArgs);
             std::string command = inputArgs.at(0);
 
 
@@ -26,7 +26,7 @@ using namespace std;
            if(command=="login") // handle connect
            {
                 int requiredArgs = 4;
-               if (inputArgs.size() < requiredArgs) {
+               if (inputArgs.size() < static_cast<size_t>(requiredArgs)) {
                     std::cout << "Invalid input. Expected at least " << requiredArgs << " arguments." << std::endl;
                     continue;
                 }
@@ -43,7 +43,7 @@ using namespace std;
            else if(command=="join")
            {
             int requiredArgs = 2;
-            if (inputArgs.size() < requiredArgs) {
+            if (inputArgs.size() < static_cast<size_t>(requiredArgs)) {
                 std::cout << "Invalid input. Expected at least " << requiredArgs << " arguments." << std::endl;
                 continue;
             }
@@ -58,7 +58,7 @@ using namespace std;
            if(command=="exit")
            {
                int requiredArgs = 2;
-               if (inputArgs.size() < requiredArgs) {
+               if (inputArgs.size() < static_cast<size_t>(requiredArgs)) {
                     std::cout << "Invalid input. Expected at least " << requiredArgs << " arguments." << std::endl;
                     continue;
                 }
@@ -70,10 +70,10 @@ using namespace std;
             sharedQueue.push(frame);
            }
 
-           if(command=="report")// need to save the events
+           if(command=="report")
            {
                 int requiredArgs = 2;
-                if (inputArgs.size() < requiredArgs) {
+                if (inputArgs.size() < static_cast<size_t>(requiredArgs)) {
                     std::cout << "Invalid input. Expected at least " << requiredArgs << " arguments." << std::endl;
                     continue;
                 }
@@ -91,7 +91,7 @@ using namespace std;
            if(command=="summary")
               {
                 int requiredArgs = 4;
-               if (inputArgs.size() < requiredArgs) {
+               if (inputArgs.size() < static_cast<size_t>(requiredArgs)) {
                     std::cout << "Invalid input. Expected at least " << requiredArgs << " arguments." << std::endl;
                     continue;
                 }
@@ -111,4 +111,4 @@ using namespace std;
               }
         }
     }
-    
+    Keyboard::~Keyboard() {}
