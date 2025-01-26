@@ -42,31 +42,15 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void disconnect(int connectionId) {
-        System.out.println("Disconnecting connectionId: " + connectionId);
-
-        // Remove connection handler
-        // ConnectionHandler<T> handler = connections.remove(connectionId);
-        // if (handler == null){
-        //     System.out.println("Connection handler is null");
-        // }
-        // if (handler != null) {
-        //     try {
-        //         handler.close();
-        //     } catch (Exception e) {
-        //         System.err.println("Error closing connection handler for connectionId: " + connectionId);
-        //         e.printStackTrace();
-        //     }
-        // }
-
-    // Unsubscribe from all channels
-    ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
-    System.out.println("User subscriptions: " + userSubscriptions);
-    if (userSubscriptions != null) {
-        for (String channel : userSubscriptions.keySet()) {
-            System.out.println("Unsubscribing from channel: " + channel);
-            subscribers.computeIfPresent(channel, (ch, channelSubscribers) -> {
-                channelSubscribers.removeIf(id -> id.equals(connectionId));
-                return channelSubscribers.isEmpty() ? null : channelSubscribers;
+        // Unsubscribe from all channels
+        ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
+        
+        if (userSubscriptions != null) {
+            for (String channel : userSubscriptions.keySet()) {
+                
+                subscribers.computeIfPresent(channel, (ch, channelSubscribers) -> {
+                    channelSubscribers.removeIf(id -> id.equals(connectionId));
+                    return channelSubscribers.isEmpty() ? null : channelSubscribers;
             });
         }
     }
