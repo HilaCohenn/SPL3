@@ -25,7 +25,7 @@ public class Reactor<T> implements Server<T> {
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
-    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+    //private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     private final AtomicInteger connectionIdGenerator = new AtomicInteger(0);
     private final ConnectionsImpl<T> connections = new ConnectionsImpl<>();
 
@@ -113,7 +113,6 @@ public class Reactor<T> implements Server<T> {
         // Create the protocol instance and pass the handler;
 
         protocol.start(connectionId, connections); 
-        protocol.setServer(this);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
              
     }
@@ -145,13 +144,13 @@ public class Reactor<T> implements Server<T> {
         selector.close();
     }
 
-    public ConcurrentHashMap<String, User> getUsers() {
-        return users;
-    }
+    // public ConcurrentHashMap<String, User> getUsers() {
+    //     return users;
+    // }
 
-    public void addUser(String userName, User user) {
-        users.put(userName, user);
-    }
+    // public void addUser(String userName, User user) {
+    //     users.put(userName, user);
+    // }
 
     public int generateConnectionId() {
         return connectionIdGenerator.incrementAndGet();

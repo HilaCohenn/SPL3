@@ -3,12 +3,14 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import bgu.spl.net.srv.User;
 
 
 
 public class ConnectionsImpl<T> implements Connections<T> {
     private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;//Integer=connectionId
     private ConcurrentHashMap<String,List<Integer>> subscribers;//Integer=connectionId
+    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, ConcurrentHashMap<String, Integer>> subscribersId; // hash map - connectionId, hash map - channel, subscriptionId
 
     public ConnectionsImpl() {
@@ -50,6 +52,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
             }
         }
 
+        // PROBLEM:
         // Unsubscribe from all channels
         ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
         if (userSubscriptions != null) {
@@ -64,6 +67,14 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public void addConnection(int connectionId, ConnectionHandler<T> connectionHandler) { 
         connections.put(connectionId, connectionHandler);
+    }
+
+    public void addUser(String userName, User user) {
+        users.put(userName, user);
+    }
+
+    public ConcurrentHashMap<String, User> getUsers() {
+        return users;
     }
     
     public void addSubscriber(String channel, int connectionId) {
@@ -97,8 +108,18 @@ public String getChannel(int connectionId, int subscriptionId) {
     return null;
 }
 
-    public boolean isSubscribed (int connectionId, String channel){
-        return subscribers.get(channel).contains(connectionId);
+    // public boolean isSubscribed (int connectionId, String channel){
+        
+    //     if (subscribers.get(channel) == null){
+    //         return false;
+    //     }
+    //     boolean isSubscribed = subscribers.get(channel).contains(connectionId);
+    //     return isSubscribed;
+    // }
+
+    public boolean isSubscribed(int connectionId, String channel) {
+        List<Integer> channelSubscribers = subscribers.get(channel);
+        return channelSubscribers != null && channelSubscribers.contains(connectionId);
     }
 
     public String getSubscriptionId(int connectionId, String channel){

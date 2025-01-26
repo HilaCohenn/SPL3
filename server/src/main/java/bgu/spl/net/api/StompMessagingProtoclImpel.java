@@ -10,7 +10,8 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private int connectionId;
     private int messageCounter = 1;
     private boolean logedIn = false;
-    private Server<T> server;
+    //private Server<T> server;
+
    
 
     public StompMessagingProtoclImpel() {
@@ -18,9 +19,9 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     
-    public void setServer(Server<T> server) {
-        this.server = server;
-    }
+    // public void setServer(Server<T> server) {
+        
+    // }
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {
@@ -63,7 +64,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
 
         // Debugging statements
         System.out.println("handleConnect: userName=" + userName + ", password=" + password);
-        System.out.println("handleConnect: server=" + server);
+        
 
         if (userName == null )
         {//error
@@ -98,12 +99,12 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
             handleError(map, "", frame);
         }
 
-        ConcurrentHashMap<String, User> users = server.getUsers();
+        ConcurrentHashMap<String, User> users = connections.getUsers();
         System.out.println("handleConnect: users=" + users);
         User user = users.get(userName);
         if (user == null) {
             user = new User(userName, password, connectionId);
-            server.addUser(userName, user);
+            connections.addUser(userName, user);
         } else if (!user.getPassword().equals(password)) {
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Wrong password");
@@ -278,7 +279,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     }
 
     private User getUserByConnectionId(int connectionId) {
-        for (User user : server.getUsers().values()) {
+        for (User user : connections.getUsers().values()) {
             if (user.getConnectionId() == connectionId) {
                 return user;
             }
