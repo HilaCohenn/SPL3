@@ -2,7 +2,7 @@
 #include "../include/Keyboard.h"
 using namespace std;
 
-    Keyboard::Keyboard():   subIdGenerator(0), receiptIdGenerator(0),isConnected(false),user(nullptr){}
+    Keyboard::Keyboard():   subIdGenerator(0), receiptIdGenerator(0),isConnected(false),user(""){}
 
     void split_string(const string &s, char delimiter, vector<string> &tokens) {
     string token;
