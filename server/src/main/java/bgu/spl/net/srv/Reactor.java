@@ -112,7 +112,8 @@ public class Reactor<T> implements Server<T> {
 
         // Create the protocol instance and pass the handler;
 
-        protocol.start(connectionId, connections);     
+        protocol.start(connectionId, connections); 
+        protocol.setServer(this);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
              
     }

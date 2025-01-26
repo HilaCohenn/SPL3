@@ -21,14 +21,14 @@ public class StompServer {
         if ("tpc".equalsIgnoreCase(serverType)) {
             Server.threadPerClient(
                     port,
-                    () -> new StompMessagingProtoclImpel<>(null), // protocol factory
+                    () -> new StompMessagingProtoclImpel<>(), // protocol factory
                     MessageEncoderDecoderImpel::new // message encoder decoder factory
             ).serve();
         } else if ("reactor".equalsIgnoreCase(serverType)) {
             Server.reactor(
                     Runtime.getRuntime().availableProcessors(),
                     port,
-                    () -> new StompMessagingProtoclImpel<>(null), // protocol factory
+                    () -> new StompMessagingProtoclImpel<>(), // protocol factory
                     MessageEncoderDecoderImpel::new // message encoder decoder factory
             ).serve();
         } else {

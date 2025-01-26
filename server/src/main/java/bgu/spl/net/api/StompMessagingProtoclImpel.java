@@ -13,11 +13,11 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
     private Server<T> server;
    
 
-    public StompMessagingProtoclImpel(Server<T> server) {
-        this.server = server;
+    public StompMessagingProtoclImpel() {
+        //
     }
 
-
+    
     public void setServer(Server<T> server) {
         this.server = server;
     }

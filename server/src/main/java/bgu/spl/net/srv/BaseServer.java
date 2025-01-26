@@ -46,6 +46,7 @@ public abstract class BaseServer<T> implements Server<T> {
                     int connectionId = generateConnectionId();
                     connections.addConnection(connectionId, handler);
                     protocol.start(connectionId, connections);
+                    protocol.setServer(this);
                 execute(handler);
             }
         } catch (IOException ex) {
