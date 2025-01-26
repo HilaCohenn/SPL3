@@ -95,7 +95,7 @@ void StompProtocol::generateSummary(std::string channel_name, std::string user,s
     
     outFile << "Total: " << userEvents.size() << "\n";
 
-    //what is active accounts??
+    //what is active accounts
     // int activeCount = std::count_if(userEvents.begin(), userEvents.end(), [](const Event& e) { return e.isActive(); });
     // outFile << "active: " << activeCount << "\n";
 

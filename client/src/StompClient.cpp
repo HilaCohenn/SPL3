@@ -91,6 +91,8 @@ int main(int argc, char *argv[]) {
         connectionHandler->close();
         delete connectionHandler;
         connectionHandler = nullptr;
+        sentFrames.clear();
+        subscriptions.clear();
      }
 
     }
