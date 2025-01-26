@@ -1,5 +1,5 @@
 #include "../include/ClientStompFrame.h"
-
+ClientStompFrame::ClientStompFrame():command(""), headers(), body("") {}
 ClientStompFrame::ClientStompFrame(const std::string &command, const std::unordered_map<std::string, std::string> &headers, const std::string &body)
     : command(command), headers(headers), body(body) {}
 

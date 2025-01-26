@@ -1,4 +1,4 @@
-#pragma once
+
 #include "../include/StompProtocol.h"
 #include "../include/ConnectionHandler.h"
 #include <string>
