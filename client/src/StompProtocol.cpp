@@ -4,11 +4,12 @@
 #include <string>
 #include <fstream>
 
-StompProtocol::StompProtocol(std::unordered_map<std::string, ClientStompFrame>& sentFrames,std::unordered_map<int, std::string>& subscriptions): connected(false), terminate(false),sentFrames(sentFrames),subscriptions(subscriptions) {}
+StompProtocol::StompProtocol(std::unordered_map<std::string, ClientStompFrame>& sentFrames,std::unordered_map<int, std::string>& subscriptions): connected(false), terminate(false), eventsPerChannel(),sentFrames(sentFrames),subscriptions(subscriptions) {}
 
 void StompProtocol::processFrame(ClientStompFrame frame){
     if(frame.getCommand() == "CONNECTED"){
         connected = true;
+        std::cout << "Login successful" << std::endl;
     }
     else if(frame.getCommand() == "RECEIPT"){
         std::string receiptId = frame.getHeaders().at("receipt-id");

@@ -10,7 +10,7 @@ TARGET := bin/StompEMIClient
 OBJECTS := bin/ConnectionHandler.o bin/event.o bin/StompClient.o bin/StompProtocol.o bin/ClientStompFrame.o bin/keyboard.o
 
 # Default target
-all: $(TARGET)
+all:clean $(TARGET)
 
 # Link the final executable
 $(TARGET): $(OBJECTS)
