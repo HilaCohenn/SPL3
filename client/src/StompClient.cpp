@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     {
         //send frame to server
         ClientStompFrame frame = sharedQueue.pop();
+        
         if(frame.getCommand() == "CONNECT") {
                 if(protocol.isconnected())
                 {
@@ -40,6 +41,7 @@ int main(int argc, char *argv[]) {
         else {
             frame.setHeaders({{"accept-version", "1.2"}, {"host", "stomp.cs.bgu.ac.il"}, {"login", frame.getHeaders().at("login")}, {"passcode", frame.getHeaders().at("passcode")}});
            connectionHandler->sendFrameAscii(frame.toString(), '\0');
+          
         }
         }
 
@@ -50,10 +52,14 @@ int main(int argc, char *argv[]) {
                 std::cout << "user not connected. Please login first" << std::endl;
                 continue;
             }
+            
             connectionHandler->sendFrameAscii(frame.toString(), '\0');
+           
             sentFrames[frame.getHeaders().at("receipt")] = frame;
+            
             if(frame.getCommand() == "SUBSCRIBE"){
                 subscriptions[std::stoi(frame.getHeaders().at("id"))] = frame.getHeaders().at("destination");
+                
             }
         }
 
@@ -88,7 +94,13 @@ int main(int argc, char *argv[]) {
 
    
     std::string frameString;
+    
+    sleep(100);
+    
     if(!connectionHandler->getFrameAscii(frameString, '\0'))
+    {
+        break;
+    }
     protocol.processFrame(ClientStompFrame(frameString));
 
      if(protocol.shouldTerminate())
@@ -101,4 +113,5 @@ int main(int argc, char *argv[]) {
      }
 
     }
+    std::cout << "Client terminated" << std::endl;
 }

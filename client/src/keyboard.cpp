@@ -49,7 +49,7 @@ using namespace std;
             }
             std::string channel = inputArgs.at(1);
 
-            ClientStompFrame frame("SUBSCRIBE", {{"destination", channel}, {"id", std::to_string(subIdGenerator)},{"recipt", std::to_string(receiptIdGenerator)}}, "");
+            ClientStompFrame frame("SUBSCRIBE", {{"destination", channel}, {"id", std::to_string(subIdGenerator)},{"receipt", std::to_string(receiptIdGenerator)}}, "");
             subIdGenerator++;
             receiptIdGenerator++;
             sharedQueue.push(frame);
@@ -64,7 +64,7 @@ using namespace std;
                 }
             std::string channel = inputArgs.at(1);
 
-            ClientStompFrame frame("UNSUBSCRIBE", {{"destination", channel}, {"id", std::to_string(subIdGenerator)},{"recipt", std::to_string(receiptIdGenerator)}}, "");
+            ClientStompFrame frame("UNSUBSCRIBE", {{"destination", channel}, {"id", std::to_string(subIdGenerator)},{"receipt", std::to_string(receiptIdGenerator)}}, "");
             subIdGenerator++;
             receiptIdGenerator++;
             sharedQueue.push(frame);
@@ -82,7 +82,7 @@ using namespace std;
             for(Event e: reportedEvents.events){
                 e.setEventOwnerUser(user);
                 std::string eventBody=e.toString();
-                ClientStompFrame frame("SEND", {{"destination", reportedEvents.channel_name},{"recipt", std::to_string(receiptIdGenerator)}}, eventBody);
+                ClientStompFrame frame("SEND", {{"destination", reportedEvents.channel_name},{"receipt", std::to_string(receiptIdGenerator)}}, eventBody);
                 receiptIdGenerator++;
                 sharedQueue.push(frame);
             }
@@ -105,7 +105,7 @@ using namespace std;
                 
               if(command=="logout")
               {
-                ClientStompFrame frame("DISCONNECT", {{"recipt", std::to_string(receiptIdGenerator)}}, "");
+                ClientStompFrame frame("DISCONNECT", {{"receipt", std::to_string(receiptIdGenerator)}}, "");
                 receiptIdGenerator++;
                 sharedQueue.push(frame);
               }

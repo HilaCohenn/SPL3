@@ -9,6 +9,7 @@ StompProtocol::StompProtocol(std::unordered_map<std::string, ClientStompFrame>& 
 void StompProtocol::processFrame(ClientStompFrame frame){
     if(frame.getCommand() == "CONNECTED"){
         connected = true;
+        std::cout << "Login successful" << std::endl;
     }
     else if(frame.getCommand() == "RECEIPT"){
         std::string receiptId = frame.getHeaders().at("receipt-id");
