@@ -123,6 +123,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if(!logedIn){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "User not logged in, please login first");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             handleError(map, "", frame);
             return;
         }
@@ -132,12 +133,18 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         connections.disconnect(connectionId);
         shouldTerminate = true;
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        String recipt = frame.getHeaders().get("receipt");
+        headers.put("receipt-id", recipt);
+        StompFrame receipt = new StompFrame("RECEIPT", headers, "");
+        connections.send(connectionId, receipt);
     }
 
     private void handleSend(StompFrame frame) {
         if(!logedIn){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "User not logged in, please login first");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             handleError(map, "", frame);
             return;
         }
@@ -146,6 +153,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if (channel == null) {
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Missing destination header");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             StringBuilder body = new StringBuilder();
             body.append("The message:\n");
             body.append("----------------\n");
@@ -178,13 +186,14 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         else{
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
-            map.put("message: ", "Missing destination header");
+            map.put("message: ", "User not subscribed to channel");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             StringBuilder body = new StringBuilder();
             body.append("The message:\n");
             body.append("----------------\n");
             body.append(frame.toString());
             body.append("----------------\n");
-            body.append("failed because SEND command missing destination header, which is required.");
+            body.append("failed because user trying to send massage to a channel it is not subscribed to.");
             handleError(map, body.toString(), frame);
             return;
         }
@@ -196,6 +205,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if(!logedIn){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "User not logged in, please login first");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             handleError(map, "", frame);
             return;
         }
@@ -205,6 +215,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if (channel==null){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Missing destination header");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             StringBuilder body = new StringBuilder();
             body.append("The message:\n");
             body.append("----------------\n");
@@ -217,6 +228,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if(connections.isSubscribed(connectionId, channel)){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "Already subscribed to channel");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             StringBuilder body = new StringBuilder();
             body.append("The message:\n");
             body.append("----------------\n");
@@ -238,6 +250,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if(!logedIn){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "User not logged in, please login first");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             handleError(map, "", frame);
             return;
         }
@@ -247,6 +260,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         if (channel==null){
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
             map.put("message: ", "not subscribed to channel");
+            map.put("receipt-id", frame.getHeaders().get("receipt"));
             StringBuilder body = new StringBuilder();
             body.append("The message:\n");
             body.append("----------------\n");

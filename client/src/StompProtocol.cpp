@@ -3,35 +3,58 @@
 #include "../include/ConnectionHandler.h"
 #include <string>
 
-StompProtocol::StompProtocol(): connected(false), terminate(false) {}
+StompProtocol::StompProtocol(std::unordered_map<std::string, ClientStompFrame>& sentFrames,std::unordered_map<int, std::string>& subscriptions): connected(false), terminate(false),sentFrames(sentFrames),subscriptions(subscriptions) {}
 
 void StompProtocol::processFrame(ClientStompFrame frame){
     if(frame.getCommand() == "CONNECTED"){
         connected = true;
     }
     else if(frame.getCommand() == "RECEIPT"){
-    //needs to figure out how to manage a list of sent frames and remove the one that got the receipt, and print when needed
-    //handle it in case of discoonect
+        std::string receiptId = frame.getHeaders().at("receipt-id");
+        ClientStompFrame frame = sentFrames.at(receiptId);
+        sentFrames.erase(receiptId);
+        if(frame.getCommand()=="SUBSCRIBE"){
+            std::cout << "Joined channel " +frame.getHeaders().at("destination")<< std::endl;
+        }
+        if(frame.getCommand()=="UNSUBSCRIBE"){
+            std::string channel= subscriptions.at(std::stoi(frame.getHeaders().at("id")));
+            std::cout << "Exited channel " << channel<< std::endl;
+            subscriptions.erase(std::stoi(frame.getHeaders().at("id")));
+        }
+
+        if(frame.getCommand()=="DISCONNECT"){ //graceful disconnect?
+            terminate = true;
+            std::cout << "logout successful" << std::endl;
+        }
     }
     else if(frame.getCommand() == "ERROR"){
         terminate = true;
+        std::cout << "Error: " << frame.getHeaders().at("message") << std::endl;
+        auto receiptIt = frame.getHeaders().find("receipt-id");
+        if (receiptIt != frame.getHeaders().end()) {
+            std::cout << "Receipt ID: " << frame.getHeaders().at("receipt-id") << std::endl;
+        }
+        if (!frame.getBody().empty()) {
+            std::cout << frame.getBody() << std::endl;
+        }
     }
     
     else if(frame.getCommand() == "MESSAGE"){
         std::string channel = frame.getHeaders().at("destination");
         std::string message = frame.getBody();
-        std::string eventOwner = frame.getHeaders().at("eventOwner");
         Event event = Event(message);
-        event.setEventOwnerUser(eventOwner);
         eventsPerChannel[channel].push_back(event);
     }
-    else if(frame.getCommand() == "ERROR"){
-        std::cout << "Error: " << frame.getBody() << std::endl;
-    }
+
 }
-bool StompProtocol::isconnected(){return isconnected;}
+bool StompProtocol::isconnected(){return connected;}
 bool StompProtocol::shouldTerminate(){
    return terminate;}
+
+void StompProtocol::generateSummary(std::string channel_name, std::string user,std::string filepath)
+{
+    
+}
 
 
 

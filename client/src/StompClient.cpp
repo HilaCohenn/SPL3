@@ -13,9 +13,11 @@
 
 int main(int argc, char *argv[]) {
     ThreadSafeQueue<ClientStompFrame> sharedQueue;
+    std::unordered_map<std::string, ClientStompFrame> sentFrames;//saves the frames that were sent and waiting for receipt
+    std::unordered_map<int, std::string> subscriptions;//saves the channels that the user is subscribed to
     Keyboard keyboard;
     ConnectionHandler* connectionHandler = nullptr;
-    StompProtocol protocol = StompProtocol();
+    StompProtocol protocol = StompProtocol(sentFrames, subscriptions);
     std::thread keyboardThread(&Keyboard::run, &keyboard, std::ref(sharedQueue));
     while(true)
     {
@@ -49,6 +51,10 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             connectionHandler->sendFrameAscii(frame.toString(), '\0');
+            sentFrames[frame.getHeaders().at("receipt")] = frame;
+            if(frame.getCommand() == "SUBSCRIBE"){
+                subscriptions[std::stoi(frame.getHeaders().at("id"))] = frame.getHeaders().at("destination");
+            }
         }
 
         else if(frame.getCommand() == "SUMMARY"){
@@ -57,7 +63,12 @@ int main(int argc, char *argv[]) {
                 std::cout << "user not connected. Please login first" << std::endl;
                 continue;
             }
-            //TODO: implement summary - using protocol? add function to protocol
+
+            std::string channel = frame.getHeaders().at("channel");
+            std::string user = frame.getHeaders().at("user");;
+            std::string filePath = frame.getHeaders().at("filepath");;
+            protocol.generateSummary(channel, user, filePath);
+
         }
 
 
@@ -70,7 +81,7 @@ int main(int argc, char *argv[]) {
             connectionHandler->sendFrameAscii(frame.toString(), '\0');
     }
 
-    //receive frame from server
+   
     std::string frameString;
     if(!connectionHandler->getFrameAscii(frameString, '\0'))
     protocol.processFrame(ClientStompFrame(frameString));
