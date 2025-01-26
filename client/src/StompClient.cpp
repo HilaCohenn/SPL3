@@ -63,12 +63,17 @@ int main(int argc, char *argv[]) {
                 std::cout << "user not connected. Please login first" << std::endl;
                 continue;
             }
-
+            else if(subscriptions.find(std::stoi(frame.getHeaders().at("id"))) == subscriptions.end())
+            {
+                std::cout << "user not subscribed to channel" << std::endl;
+                continue;
+            }
+            else{
             std::string channel = frame.getHeaders().at("channel");
             std::string user = frame.getHeaders().at("user");;
             std::string filePath = frame.getHeaders().at("filepath");;
             protocol.generateSummary(channel, user, filePath);
-
+            }
         }
 
 
