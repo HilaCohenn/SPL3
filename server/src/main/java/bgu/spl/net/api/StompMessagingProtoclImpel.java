@@ -18,10 +18,6 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         //
     }
 
-    
-    // public void setServer(Server<T> server) {
-        
-    // }
 
     @Override
     public void start(int connectionId, Connections<StompFrame> connections) {
@@ -62,10 +58,6 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         String userName = frame.getHeaders().get("login");
         String password = frame.getHeaders().get("passcode");
 
-        // Debugging statements
-        System.out.println("handleConnect: userName=" + userName + ", password=" + password);
-        
-
         if (userName == null )
         {//error
             ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
@@ -100,7 +92,6 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
 
         ConcurrentHashMap<String, User> users = connections.getUsers();
-        System.out.println("handleConnect: users=" + users);
         User user = users.get(userName);
         if (user == null) {
             user = new User(userName, password, connectionId);
@@ -134,7 +125,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         connections.disconnect(connectionId);
         shouldTerminate = true;
-        System.out.println("handleDisconnect: shouldTerminate=" + shouldTerminate);
+        
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         String recipt = frame.getHeaders().get("receipt");
         headers.put("receipt-id", recipt);
