@@ -134,6 +134,7 @@ public class StompMessagingProtoclImpel<T> implements StompMessagingProtocol<Sto
         }
         connections.disconnect(connectionId);
         shouldTerminate = true;
+        System.out.println("handleDisconnect: shouldTerminate=" + shouldTerminate);
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         String recipt = frame.getHeaders().get("receipt");
         headers.put("receipt-id", recipt);

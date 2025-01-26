@@ -45,18 +45,18 @@ public class ConnectionsImpl<T> implements Connections<T> {
         System.out.println("Disconnecting connectionId: " + connectionId);
 
         // Remove connection handler
-        ConnectionHandler<T> handler = connections.remove(connectionId);
-        if (handler == null){
-            System.out.println("Connection handler is null");
-        }
-        if (handler != null) {
-            try {
-                handler.close();
-            } catch (Exception e) {
-                System.err.println("Error closing connection handler for connectionId: " + connectionId);
-                e.printStackTrace();
-            }
-        }
+        // ConnectionHandler<T> handler = connections.remove(connectionId);
+        // if (handler == null){
+        //     System.out.println("Connection handler is null");
+        // }
+        // if (handler != null) {
+        //     try {
+        //         handler.close();
+        //     } catch (Exception e) {
+        //         System.err.println("Error closing connection handler for connectionId: " + connectionId);
+        //         e.printStackTrace();
+        //     }
+        // }
 
     // Unsubscribe from all channels
     ConcurrentHashMap<String, Integer> userSubscriptions = subscribersId.remove(connectionId);
