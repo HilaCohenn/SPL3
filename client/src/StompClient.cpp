@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
         else {
             frame.setHeaders({{"accept-version", "1.2"}, {"host", "stomp.cs.bgu.ac.il"}, {"login", frame.getHeaders().at("login")}, {"passcode", frame.getHeaders().at("passcode")}});
            connectionHandler->sendFrameAscii(frame.toString(), '\0');
+           std::cout << "connected to " << host << ":" << port << std::endl;
         }
         }
 
